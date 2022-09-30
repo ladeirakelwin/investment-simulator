@@ -1,16 +1,15 @@
 import React from 'react';
-import { AiFillInfoCircle } from 'react-icons/ai';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 interface INameChoice {
 	name: string;
-    styles?: string;
 }
 
-const NameChoice: React.FC<INameChoice> = ({ name, styles='' }) => {
+const NameChoice: React.FC<INameChoice> = ({ name}) => {
 	return (
-		<div className={styles}>
+		<div className="d-flex justify-content-between">
 			<p>{name}</p>
-			<AiFillInfoCircle />
+			<AiOutlineInfoCircle />
 		</div>
 	);
 };

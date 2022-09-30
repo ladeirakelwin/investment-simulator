@@ -1,0 +1,23 @@
+.button-container {
+    display: flex;
+
+    button {
+        height: 2.5rem;
+        flex: 1;
+        border: 1px solid #111;
+        background: transparent;
+        color: #111;
+    }
+
+    .actived{
+        background: #ff7b00;
+        color: #fff;
+    }
+
+    .actived::before {
+        content: '\2714';
+        margin-right: 0.5rem;
+        color: #fff;
+
+    }
+}
