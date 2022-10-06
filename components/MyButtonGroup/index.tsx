@@ -15,15 +15,15 @@ const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names }) => {
 		<div className={styles['button-container']}>
 			{names.map((name, index) => {
 				return index == first ? (
-					<button type="button" className={`rounded-start ${styles.actived}`}>
+					<button key={index} type="button" className={`rounded-start ${styles.actived}`}>
 						{name}
 					</button>
 				) : index == last ? (
-					<button type="button" className="rounded-end">
+					<button key={index} type="button" className="rounded-end">
 						{name}
 					</button>
 				) : (
-					<button type="button" className="">
+					<button key={index} type="button" className="">
 						{name}
 					</button>
 				);
