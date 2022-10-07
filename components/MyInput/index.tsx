@@ -3,24 +3,28 @@ import { Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 
 // import { Container } from './styles';
-interface IMyInput {
-	label: string;
-	classLabel?: string;
-	placeholder?: string;
-	name: string;
-	value?: string | number;
-	onChange: (e: Partial<SimulatorData>) => void;
-	prefix?: string;
-	suffix?: string;
-}
 
-type SimulatorData = {
+type Data = {
 	initial: string | undefined;
 	due: string | undefined;
 	ipca: string | undefined;
 	monthly: string | undefined;
 	profitability: string | undefined;
 	cdi: string | undefined;
+};
+interface IMyInput {
+	label: string;
+	classLabel?: string;
+	placeholder?: string;
+	name: string;
+	value?: string | number;
+	onChange: (e: Partial<Data>) => void;
+	prefix?: string;
+	suffix?: string;
+}
+
+type SimulatorData = {
+	data: Data;
 };
 
 const MyInput: React.FC<IMyInput> = ({
