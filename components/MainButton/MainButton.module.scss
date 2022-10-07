@@ -7,15 +7,16 @@
     border: none;
     margin-top: 1rem;
     max-width: 300px;
-
 }
 
 .blocked {
 	background: #888;
+    cursor: not-allowed;
 }
 
 .actived {
 	background: #ff7b00;
+    
 }
 
 @media (min-width: 992px) {
