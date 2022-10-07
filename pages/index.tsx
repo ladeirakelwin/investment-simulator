@@ -25,7 +25,7 @@ function getIPCAandCDI(callback: Function) {
 		.then((data: IIPCAandCDI[]) => {
 			const newData: InfoIndicator = {} as InfoIndicator;
 			data.forEach(({ nome, valor }) => {
-				newData[nome] = String(valor).replace('.', ',');
+				newData[nome] = `${String(valor).replace('.', ',')}%`;
 			});
 			callback(newData);
 		});
