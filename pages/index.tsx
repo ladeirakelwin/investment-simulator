@@ -7,15 +7,8 @@ import NameChoice from '../components/NameChoice';
 import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
 import { useEffect, useState } from 'react';
-
-export type simulatorData = {
-	initial: number | undefined;
-	due: number | undefined;
-	ipca: number | undefined;
-	monthly: number | undefined;
-	profitability: number | undefined;
-	cdi: number | undefined;
-};
+import { useSimulatorStore } from '../contexts/Simulator';
+import { Dispatch, SetStateAction } from 'react';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -23,37 +16,38 @@ interface IIPCAandCDI {
 }
 
 type InfoIndicator = {
-	[key: string]: number;
+	[key: string]: string;
 };
 
-function getIPCAandCDI(currentState: simulatorData, callback: Function) {
+function getIPCAandCDI(callback: Function) {
 	return fetch('http://localhost:3000/indicadores')
 		.then((response) => response.json())
 		.then((data: IIPCAandCDI[]) => {
 			const newData: InfoIndicator = {} as InfoIndicator;
 			data.forEach(({ nome, valor }) => {
-				newData[nome] = valor;
+				newData[nome] = String(valor).replace('.', ',');
 			});
-			callback({ ...currentState, ...newData });
+			callback(newData);
 		});
 }
 
 const Home: NextPage = () => {
-	const [formData, setFormData] = useState<simulatorData>({
-		initial: undefined,
-		due: undefined,
-		ipca: undefined,
-		monthly: undefined,
-		profitability: undefined,
-		cdi: undefined,
-	});
-
-	console.log(formData);
-
+	const data = useSimulatorStore((s) => s.data);
+	const initial = useSimulatorStore((s) => s.data?.initial);
+	const due = useSimulatorStore((s) => s.data?.due);
+	const ipca = useSimulatorStore((s) => s.data?.ipca);
+	const monthly = useSimulatorStore((s) => s.data?.monthly);
+	const profitability = useSimulatorStore((s) => s.data?.profitability);
+	const cdi = useSimulatorStore((s) => s.data?.cdi);
+	const setALot = useSimulatorStore((s) => s.setALot);
+	const cleanState = useSimulatorStore((s) => s.cleanState);
 	useEffect(() => {
-		getIPCAandCDI(formData, setFormData);
+		getIPCAandCDI(setALot);
 	}, []);
 
+
+
+	// transformar o dados em objeto unico e outro objeto para tratar erro
 	return (
 		<div className={styles.container}>
 			<Container fluid className=" p-4">
@@ -69,25 +63,56 @@ const Home: NextPage = () => {
 								<div>
 									<NameChoice name="Rendimento" />
 									<MyButtonGroup names={['Bruto', 'Líquido']} />
-									<MyInput label="Aporte Inicial" type="number" name="initial" />
-									<MyInput label="Prazo (em meses)" type="number" name="due" />
-									<MyInput label="IPCA (ao ano)" type="number" name="ipca" />
+									<MyInput
+										value={initial}
+										onChange={setALot}
+										label="Aporte Inicial"
+										name="initial"
+										prefix="R$ "
+									/>
+									<MyInput
+										value={due}
+										onChange={setALot}
+										label="Prazo (em meses)"
+										name="due"
+									/>
+									<MyInput
+										value={ipca}
+										onChange={setALot}
+										label="IPCA (ao ano)"
+										name="ipca"
+										suffix="%"
+									/>
 								</div>
 
 								<div>
 									<NameChoice name="Tipo de indexação" />
 									<MyButtonGroup names={['Pré', 'Pós', 'Fixado']} />
-									<MyInput label="Aporte Mensal" type="number" name="monthly" />
 									<MyInput
-										label="Rentabilidade"
-										type="number"
-										name="profitability"
+										value={monthly}
+										onChange={setALot}
+										label="Aporte Mensal"
+										name="monthly"
+										prefix="R$ "
 									/>
-									<MyInput label="CDI (ao ano)" type="number" name="cdi" />
+									<MyInput
+										value={profitability}
+										onChange={setALot}
+										label="Rentabilidade"
+										name="profitability"
+										suffix="%"
+									/>
+									<MyInput
+										value={cdi}
+										onChange={setALot}
+										label="CDI (ao ano)"
+										name="cdi"
+										suffix="%"
+									/>
 								</div>
 							</Stack>
 							<div className="d-flex flex-wrap flex-column flex-lg-row justify-content-lg-between align-items-center">
-								<CleanButton>Limpar campos</CleanButton>
+								<CleanButton onClear={cleanState}>Limpar campos</CleanButton>
 								<MainButton status="actived">Simular</MainButton>
 							</div>
 						</Form>
