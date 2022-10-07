@@ -6,9 +6,8 @@ import styles from '../styles/Home.module.scss';
 import NameChoice from '../components/NameChoice';
 import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
-import { useEffect, useState } from 'react';
+import { FormEvent, FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
-import { Dispatch, SetStateAction } from 'react';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -32,7 +31,6 @@ function getIPCAandCDI(callback: Function) {
 }
 
 const Home: NextPage = () => {
-	const data = useSimulatorStore((s) => s.data);
 	const initial = useSimulatorStore((s) => s.data?.initial);
 	const due = useSimulatorStore((s) => s.data?.due);
 	const ipca = useSimulatorStore((s) => s.data?.ipca);
@@ -41,11 +39,17 @@ const Home: NextPage = () => {
 	const cdi = useSimulatorStore((s) => s.data?.cdi);
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
+	let newData = useCallback(() => Object.values(useSimulatorStore((s) => s.data)).every(item => item), [setALot]);
+	const isComplete = newData();
 	useEffect(() => {
 		getIPCAandCDI(setALot);
 	}, []);
 
+	console.log(isComplete)
 
+	function onSubmit(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+	}
 
 	// transformar o dados em objeto unico e outro objeto para tratar erro
 	return (
@@ -55,7 +59,7 @@ const Home: NextPage = () => {
 				<div className={styles.core}>
 					<div>
 						<h4>Simulador</h4>
-						<Form>
+						<Form onSubmit={(e) => onSubmit(e)}>
 							<Stack
 								direction="horizontal"
 								className="d-flex justify-content-center justify-content-sm-evenly justify-content-lg-between mb-4 flex-wrap"
@@ -113,7 +117,7 @@ const Home: NextPage = () => {
 							</Stack>
 							<div className="d-flex flex-wrap flex-column flex-lg-row justify-content-lg-between align-items-center">
 								<CleanButton onClear={cleanState}>Limpar campos</CleanButton>
-								<MainButton status="actived">Simular</MainButton>
+								<MainButton status={isComplete ? "actived" : "blocked"}>Simular</MainButton>
 							</div>
 						</Form>
 					</div>
