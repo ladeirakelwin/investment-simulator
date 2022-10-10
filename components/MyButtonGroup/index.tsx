@@ -1,10 +1,6 @@
-import { type } from 'os';
 import React, { ReactElement, SyntheticEvent } from 'react';
-import { SyntheticInputEvent } from 'react-number-format/types/types';
 import styles from './MyButtonGroup.module.scss';
-// import { Container } from './styles';
-// Cada nome passado seja um botão
-// O botão selecionado seja orange
+
 
 interface IMyButtonGroup {
 	names: string[];

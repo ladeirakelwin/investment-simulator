@@ -1,17 +1,9 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
+import { Data } from '../../shared/types';
 
 // import { Container } from './styles';
-
-type Data = {
-	initial: string | undefined;
-	due: string | undefined;
-	ipca: string | undefined;
-	monthly: string | undefined;
-	profitability: string | undefined;
-	cdi: string | undefined;
-};
 interface IMyInput {
 	label: string;
 	classLabel?: string;
@@ -22,10 +14,6 @@ interface IMyInput {
 	prefix?: string;
 	suffix?: string;
 }
-
-type SimulatorData = {
-	data: Data;
-};
 
 const MyInput: React.FC<IMyInput> = ({
 	label,

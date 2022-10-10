@@ -1,15 +1,6 @@
 import create from 'zustand';
-
-enum IndexingType {
-	PRE = 'Pré',
-	POS = 'Pós',
-	FIXADO = 'Fixado',
-}
-
-enum Performance {
-	BRUTO = 'Bruto',
-	LIQUIDO = 'Líquido',
-}
+import { IndexingType, Performance } from '../../shared/constants';
+import { Data } from '../../shared/types';
 
 const initialState = {
 	data: {
@@ -24,16 +15,7 @@ const initialState = {
 	},
 };
 
-type Data = {
-	initial: string | undefined;
-	due: string | undefined;
-	ipca: string | undefined;
-	monthly: string | undefined;
-	profitability: string | undefined;
-	cdi: string | undefined;
-	performance: Performance;
-	indexing: IndexingType;
-};
+
 
 type SimulatorData = {
 	data: Data;
