@@ -8,6 +8,7 @@ import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
 import { FormEvent, FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
+import { IndexingType, Performance } from '../shared/constants';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -37,9 +38,14 @@ const Home: NextPage = () => {
 	const monthly = useSimulatorStore((s) => s.data?.monthly);
 	const profitability = useSimulatorStore((s) => s.data?.profitability);
 	const cdi = useSimulatorStore((s) => s.data?.cdi);
+	const performance = useSimulatorStore((s) => s.data?.performance);
+	const indexing = useSimulatorStore((s) => s.data?.indexing);
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
-	let newData = useCallback(() => Object.values(useSimulatorStore((s) => s.data)).every(item => item), [setALot]);
+	let newData = useCallback(
+		() => Object.values(useSimulatorStore((s) => s.data)).every((item) => item),
+		[setALot]
+	);
 	const isComplete = newData();
 	useEffect(() => {
 		getIPCAandCDI(setALot);
@@ -64,7 +70,11 @@ const Home: NextPage = () => {
 							>
 								<div>
 									<NameChoice name="Rendimento" />
-									<MyButtonGroup names={['Bruto', 'Líquido']} />
+									<MyButtonGroup
+										setALot={setALot}
+										type="performance"
+										names={[Performance.BRUTO, Performance.LIQUIDO]}
+									/>
 									<MyInput
 										value={initial}
 										onChange={setALot}
@@ -89,7 +99,15 @@ const Home: NextPage = () => {
 
 								<div>
 									<NameChoice name="Tipo de indexação" />
-									<MyButtonGroup names={['Pré', 'Pós', 'Fixado']} />
+									<MyButtonGroup
+										type="indexing"
+										setALot={setALot}
+										names={[
+											IndexingType.PRE,
+											IndexingType.POS,
+											IndexingType.FIXADO,
+										]}
+									/>
 									<MyInput
 										value={monthly}
 										onChange={setALot}
@@ -115,7 +133,9 @@ const Home: NextPage = () => {
 							</Stack>
 							<div className="d-flex flex-wrap flex-column flex-lg-row justify-content-lg-between align-items-center">
 								<CleanButton onClear={cleanState}>Limpar campos</CleanButton>
-								<MainButton status={isComplete ? "actived" : "blocked"}>Simular</MainButton>
+								<MainButton status={isComplete ? 'actived' : 'blocked'}>
+									Simular
+								</MainButton>
 							</div>
 						</Form>
 					</div>

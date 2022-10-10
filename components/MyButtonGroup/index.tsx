@@ -1,12 +1,20 @@
-import React, { ReactElement, SyntheticEvent } from 'react';
+import React, { SyntheticEvent } from 'react';
+import { Data } from '../../shared/types';
 import styles from './MyButtonGroup.module.scss';
 
-
 interface IMyButtonGroup {
+	type: string;
 	names: string[];
+	setALot: (e: Partial<Data>) => void;
 }
 
-const setActive = (el: SyntheticEvent<HTMLButtonElement>) => {
+interface SetActive {
+	el: SyntheticEvent<HTMLButtonElement>;
+	setALot: (e: Partial<Data>) => void;
+	type: string;
+}
+
+const setActive = ({ el, setALot, type }: SetActive) => {
 	const sibblingElements = el?.currentTarget?.parentElement?.children;
 	if (sibblingElements) {
 		const length = sibblingElements.length;
@@ -14,10 +22,12 @@ const setActive = (el: SyntheticEvent<HTMLButtonElement>) => {
 			sibblingElements[i].classList.remove(styles.actived);
 		}
 		el.currentTarget.classList.add(styles.actived);
+		// console.log({[type]: el.currentTarget.innerHTML })
+		setALot({[type]: el.currentTarget.innerHTML })
 	}
 };
 
-const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names }) => {
+const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names, setALot, type }) => {
 	const first = 0;
 	const last = names.length - 1;
 
@@ -29,7 +39,7 @@ const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names }) => {
 						key={index}
 						type="button"
 						className={`rounded-start ${styles.actived}`}
-						onClick={(e) => setActive(e)}
+						onClick={(e) => setActive({ el: e, setALot, type })}
 					>
 						{name}
 					</button>
@@ -38,12 +48,17 @@ const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names }) => {
 						key={index}
 						type="button"
 						className="rounded-end"
-						onClick={(e) => setActive(e)}
+						onClick={(e) => setActive({ el: e, setALot, type })}
 					>
 						{name}
 					</button>
 				) : (
-					<button key={index} type="button" className="" onClick={(e) => setActive(e)}>
+					<button
+						key={index}
+						type="button"
+						className=""
+						onClick={(e) => setActive({ el: e, setALot, type })}
+					>
 						{name}
 					</button>
 				);
