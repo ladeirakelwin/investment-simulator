@@ -45,8 +45,6 @@ const Home: NextPage = () => {
 		getIPCAandCDI(setALot);
 	}, []);
 
-	console.log(isComplete)
-
 	function onSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 	}
