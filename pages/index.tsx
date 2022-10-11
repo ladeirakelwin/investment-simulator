@@ -6,9 +6,10 @@ import styles from '../styles/Home.module.scss';
 import NameChoice from '../components/NameChoice';
 import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
-import { FormEvent, FormEventHandler, useCallback, useEffect, useState } from 'react';
+import { FormEvent, FormEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
 import { IndexingType, Performance } from '../shared/constants';
+import { Data, Simulations } from '../shared/types';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -19,43 +20,50 @@ type InfoIndicator = {
 	[key: string]: string;
 };
 
-function getIPCAandCDI(callback: Function) {
-	return fetch('http://localhost:3000/indicadores')
-		.then((response) => response.json())
-		.then((data: IIPCAandCDI[]) => {
-			const newData: InfoIndicator = {} as InfoIndicator;
-			data.forEach(({ nome, valor }) => {
-				newData[nome] = `${String(valor).replace('.', ',')}%`;
-			});
-			callback(newData);
-		});
+const dictAPI = {
+	[IndexingType.PRE]: 'pre',
+	[IndexingType.POS]: 'pos',
+	[IndexingType.FIXADO]: 'fixado',
+	[Performance.BRUTO]: 'bruto',
+	[Performance.LIQUIDO]: 'liquido',
+};
+
+async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
+	event.preventDefault();
+	const typeInfo = {
+		tipoIndexacao: dictAPI[data.indexing],
+		tipoRendimento: dictAPI[data.performance],
+	};
+
+	
+	// const currentSimulation = body.filter(
+	// 	(simulation) =>
+	// 		simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
+	// 		simulation.tipoRendimento === typeInfo.tipoRendimento
+	// )[0];
+	// console.log(currentSimulation);
+}
+interface IHomeProps {
+	 baseIndicators: InfoIndicator,
 }
 
-const Home: NextPage = () => {
+const Home: NextPage<IHomeProps> = ({baseIndicators}) => {
+	const data = useSimulatorStore((s) => s.data);
 	const initial = useSimulatorStore((s) => s.data?.initial);
 	const due = useSimulatorStore((s) => s.data?.due);
 	const ipca = useSimulatorStore((s) => s.data?.ipca);
 	const monthly = useSimulatorStore((s) => s.data?.monthly);
 	const profitability = useSimulatorStore((s) => s.data?.profitability);
 	const cdi = useSimulatorStore((s) => s.data?.cdi);
-	const performance = useSimulatorStore((s) => s.data?.performance);
-	const indexing = useSimulatorStore((s) => s.data?.indexing);
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
-	let newData = useCallback(
-		() => Object.values(useSimulatorStore((s) => s.data)).every((item) => item),
-		[setALot]
-	);
-	const isComplete = newData();
+
+	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]);
+
 	useEffect(() => {
-		getIPCAandCDI(setALot);
+		setALot(baseIndicators)
 	}, []);
 
-	function onSubmit(event: FormEvent<HTMLFormElement>) {
-		event.preventDefault();
-	}
-
-	// transformar o dados em objeto unico e outro objeto para tratar erro
 	return (
 		<div className={styles.container}>
 			<Container fluid className=" p-4">
@@ -63,7 +71,7 @@ const Home: NextPage = () => {
 				<div className={styles.core}>
 					<div>
 						<h4>Simulador</h4>
-						<Form onSubmit={(e) => onSubmit(e)}>
+						<Form onSubmit={async (e) => await onSubmit(e, data)}>
 							<Stack
 								direction="horizontal"
 								className="d-flex justify-content-center justify-content-sm-evenly justify-content-lg-between mb-4 flex-wrap"
@@ -147,3 +155,19 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export async function getServerSideProps() {
+	// Fetch data from external API
+	
+
+	const response = await fetch('http://localhost:3000/indicadores');
+	const indicators: IIPCAandCDI[] = await response.json();
+	const baseIndicators: InfoIndicator = indicators.reduce((acc,indicator) => {
+		acc[indicator.nome] = `${String(indicator.valor).replace('.', ',')}%`;
+		return acc;
+	}, {} as InfoIndicator)
+
+
+	// Pass data to the page via props
+	return { props: { baseIndicators } };
+}
