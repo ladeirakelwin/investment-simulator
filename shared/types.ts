@@ -11,7 +11,7 @@ export type Data = {
 	indexing: IndexingType;
 };
 
-export interface Simulations {
+export interface Simulation {
 	tipoIndexacao: string;
 	tipoRendimento: string;
 	valorFinalBruto: number;

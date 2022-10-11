@@ -9,7 +9,7 @@ import MyButtonGroup from '../components/MyButtonGroup';
 import { FormEvent, FormEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
 import { IndexingType, Performance } from '../shared/constants';
-import { Data, Simulations } from '../shared/types';
+import { Data, Simulation } from '../shared/types';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -35,13 +35,16 @@ async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
 		tipoRendimento: dictAPI[data.performance],
 	};
 
+	const response = await fetch('api/simulacoes');
+	const {simulations} : { simulations: Simulation[] }  = await response.json();
+
 	
-	// const currentSimulation = body.filter(
-	// 	(simulation) =>
-	// 		simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
-	// 		simulation.tipoRendimento === typeInfo.tipoRendimento
-	// )[0];
-	// console.log(currentSimulation);
+	const currentSimulation = simulations.filter(
+		(simulation) =>
+			simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
+			simulation.tipoRendimento === typeInfo.tipoRendimento
+	)[0];
+	console.log(currentSimulation);
 }
 interface IHomeProps {
 	 baseIndicators: InfoIndicator,
@@ -58,7 +61,7 @@ const Home: NextPage<IHomeProps> = ({baseIndicators}) => {
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
 
-	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]);
+	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]); 
 
 	useEffect(() => {
 		setALot(baseIndicators)
