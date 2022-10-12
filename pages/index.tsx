@@ -36,21 +36,34 @@ async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
 	};
 
 	const response = await fetch('api/simulacoes');
-	const {simulations} : { simulations: Simulation[] }  = await response.json();
+	const { simulations }: { simulations: Simulation[] } = await response.json();
 
-	
 	const currentSimulation = simulations.filter(
 		(simulation) =>
 			simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
 			simulation.tipoRendimento === typeInfo.tipoRendimento
 	)[0];
-	console.log(currentSimulation);
+
+	const { semAporte, comAporte } = currentSimulation.graficoValores;
+	const dataGraph = [];
+
+	for (let i in semAporte) {
+		dataGraph.push({
+			mes: i,
+			semAporte: semAporte[i],
+			semAporteColor: 'hsl(240, 70%, 50%)',
+			comAporte: comAporte[i],
+			comAporteColor: 'hsl(0, 0%, 0%)',
+		});
+	}
+
+	console.log(dataGraph)
 }
 interface IHomeProps {
-	 baseIndicators: InfoIndicator,
+	baseIndicators: InfoIndicator;
 }
 
-const Home: NextPage<IHomeProps> = ({baseIndicators}) => {
+const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 	const data = useSimulatorStore((s) => s.data);
 	const initial = useSimulatorStore((s) => s.data?.initial);
 	const due = useSimulatorStore((s) => s.data?.due);
@@ -61,10 +74,10 @@ const Home: NextPage<IHomeProps> = ({baseIndicators}) => {
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
 
-	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]); 
+	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]);
 
 	useEffect(() => {
-		setALot(baseIndicators)
+		setALot(baseIndicators);
 	}, []);
 
 	return (
@@ -161,15 +174,13 @@ export default Home;
 
 export async function getServerSideProps() {
 	// Fetch data from external API
-	
 
 	const response = await fetch('http://localhost:3000/indicadores');
 	const indicators: IIPCAandCDI[] = await response.json();
-	const baseIndicators: InfoIndicator = indicators.reduce((acc,indicator) => {
+	const baseIndicators: InfoIndicator = indicators.reduce((acc, indicator) => {
 		acc[indicator.nome] = `${String(indicator.valor).replace('.', ',')}%`;
 		return acc;
-	}, {} as InfoIndicator)
-
+	}, {} as InfoIndicator);
 
 	// Pass data to the page via props
 	return { props: { baseIndicators } };
