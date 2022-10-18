@@ -115,7 +115,7 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 						<Form onSubmit={async (e) => await onSubmit(e, data)}>
 							<Stack
 								direction="horizontal"
-								className="d-flex justify-content-center justify-content-sm-evenly justify-content-lg-between mb-4 flex-wrap"
+								className="d-flex justify-content-center justify-content-sm-evenly justify-content-xl-between mb-4 flex-wrap flex-lg-nowrap"
 							>
 								<div>
 									<NameChoice name="Rendimento" />
@@ -180,7 +180,7 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 									/>
 								</div>
 							</Stack>
-							<div className="d-flex flex-wrap flex-column flex-lg-row justify-content-lg-between align-items-center">
+							<div className="d-flex flex-wrap flex-column flex-lg-row justify-content-evenly  justify-content-xl-between align-items-center">
 								<CleanButton onClear={cleanState}>Limpar campos</CleanButton>
 								<MainButton status={isComplete ? 'actived' : 'blocked'}>
 									Simular
@@ -193,7 +193,7 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 							<>
 								<h4>Resultado da Simulação</h4>
 								<div className="d-flex flex-column">
-									<Row className="flex-fill w-100">
+									<Row className=" w-100">
 										{ReturnCards(simulationInfo).map((card) => (
 											<Col xs="12" sm="6" lg="4" className="my-2">
 												{card}
