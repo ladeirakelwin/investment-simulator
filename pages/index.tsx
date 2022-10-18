@@ -1,15 +1,24 @@
 import type { NextPage } from 'next';
-import { Container, Form, Row, Stack } from 'react-bootstrap';
+import { Col, Form, Row, Stack } from 'react-bootstrap';
 import MainButton from '../components/MainButton';
 import CleanButton from '../components/CleanButton';
 import styles from '../styles/Home.module.scss';
 import NameChoice from '../components/NameChoice';
 import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
-import { FormEvent, FormEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	FormEvent,
+	ReactNode,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
-import { IndexingType, Performance } from '../shared/constants';
+import { CardTextKeys, IndexingType, Performance } from '../shared/constants';
 import { Data, Simulation } from '../shared/types';
+import Card from '../components/Card';
+import Chart from '../components/Chart';
+import { BarDatum } from '@nivo/bar';
 
 interface IIPCAandCDI {
 	nome: string;
@@ -23,41 +32,22 @@ type InfoIndicator = {
 const dictAPI = {
 	[IndexingType.PRE]: 'pre',
 	[IndexingType.POS]: 'pos',
-	[IndexingType.FIXADO]: 'fixado',
+	[IndexingType.FIXADO]: 'ipca',
 	[Performance.BRUTO]: 'bruto',
 	[Performance.LIQUIDO]: 'liquido',
 };
 
-async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
-	event.preventDefault();
-	const typeInfo = {
-		tipoIndexacao: dictAPI[data.indexing],
-		tipoRendimento: dictAPI[data.performance],
-	};
-
-	const response = await fetch('api/simulacoes');
-	const { simulations }: { simulations: Simulation[] } = await response.json();
-
-	const currentSimulation = simulations.filter(
-		(simulation) =>
-			simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
-			simulation.tipoRendimento === typeInfo.tipoRendimento
-	)[0];
-
-	const { semAporte, comAporte } = currentSimulation.graficoValores;
-	const dataGraph = [];
-
-	for (let i in semAporte) {
-		dataGraph.push({
-			mes: i,
-			semAporte: semAporte[i],
-			semAporteColor: 'hsl(240, 70%, 50%)',
-			comAporte: comAporte[i],
-			comAporteColor: 'hsl(0, 0%, 0%)',
-		});
+function ReturnCards(obj: object): ReactNode[] {
+	const elements = [];
+	for (const [key, value] of Object.entries(obj)) {
+		const typeValue = key === 'aliquotaIR' ? "percentage" : "currency";
+		if (['valorFinalBruto', 'aliquotaIR', 'valorPagoIR', 'valorTotalInvestido'].includes(key)) {
+			elements.push(<Card  typeValue={typeValue} title={key as CardTextKeys} value={value} />);
+		} else if (['valorFinalLiquido', 'ganhoLiquido'].includes(key)) {
+			elements.push(<Card title={key as CardTextKeys} value={value} isGreen />);
+		}
 	}
-
-	console.log(dataGraph)
+	return elements;
 }
 interface IHomeProps {
 	baseIndicators: InfoIndicator;
@@ -73,16 +63,51 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 	const cdi = useSimulatorStore((s) => s.data?.cdi);
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
-
+	const [simulationInfo, setSimulationInfo] = useState<Simulation>({} as Simulation);
 	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]);
+
+	async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
+		event.preventDefault();
+		const typeInfo = {
+			tipoIndexacao: dictAPI[data.indexing],
+			tipoRendimento: dictAPI[data.performance],
+		};
+
+		const response = await fetch('api/simulacoes');
+		const { simulations }: { simulations: Simulation[] } = await response.json();
+
+		console.log(simulations);
+
+		const currentSimulation = simulations.filter(
+			(simulation) =>
+				simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
+				simulation.tipoRendimento === typeInfo.tipoRendimento
+		)[0];
+
+		const { semAporte, comAporte } = currentSimulation.graficoValores;
+		const dataGraph: BarDatum[] = [];
+
+		for (let i in semAporte) {
+			dataGraph.push({
+				mes: i,
+				'Sem Aporte': semAporte[i],
+				'Com Aporte': comAporte[i],
+			});
+		}
+
+		console.log(dataGraph);
+		setSimulationInfo({ ...currentSimulation, dataGraph });
+	}
 
 	useEffect(() => {
 		setALot(baseIndicators);
 	}, []);
 
+	console.log(simulationInfo?.dataGraph);
+
 	return (
 		<div className={styles.container}>
-			<Container fluid className=" p-4">
+			<div className=" p-4">
 				<h1 className="text-center">Simulador de investimentos</h1>
 				<div className={styles.core}>
 					<div>
@@ -163,9 +188,31 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 							</div>
 						</Form>
 					</div>
-					<div>b</div>
+					<div className="p-4">
+						{!!Object.values(simulationInfo).length && (
+							<>
+								<h4>Resultado da Simulação</h4>
+								<div className="d-flex flex-column">
+									<Row className="flex-fill w-100">
+										{ReturnCards(simulationInfo).map((card) => (
+											<Col xs="12" sm="6" lg="4" className="my-2">
+												{card}
+											</Col>
+										))}
+									</Row>
+									<Chart
+										data={simulationInfo.dataGraph}
+										columns={['Sem Aporte', 'Com Aporte']}
+										colors={['hsl(0, 0%, 0%)', 'hsl(20, 70%, 50%)']}
+										legendNameLeft="Valor (R$)"
+										legendNameBottom="Tempo (meses)"
+									/>
+								</div>
+							</>
+						)}
+					</div>
 				</div>
-			</Container>
+			</div>
 		</div>
 	);
 };
@@ -182,6 +229,5 @@ export async function getServerSideProps() {
 		return acc;
 	}, {} as InfoIndicator);
 
-	// Pass data to the page via props
 	return { props: { baseIndicators } };
 }
