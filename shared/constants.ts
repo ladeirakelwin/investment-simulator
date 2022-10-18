@@ -8,3 +8,14 @@ export enum Performance {
 	BRUTO = 'Bruto',
 	LIQUIDO = 'Líquido',
 }
+
+export const CardText = {
+	valorFinalBruto: 'Valor Final Bruto',
+	aliquotaIR: 'Alíquota IR',
+	valorPagoIR: 'Valor Pago IR',
+	valorTotalInvestido: 'Valor Total Investido',
+	valorFinalLiquido: 'Valor Final Líquido',
+	ganhoLiquido: 'Ganho Líquido',
+};
+
+export type CardTextKeys = 'valorFinalBruto' | 'aliquotaIR' | 'valorPagoIR' | 'valorTotalInvestido' | 'valorFinalLiquido' | 'ganhoLiquido';
