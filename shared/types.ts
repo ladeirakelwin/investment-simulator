@@ -1,3 +1,4 @@
+import { BarDatum } from '@nivo/bar';
 import { IndexingType, Performance } from './constants';
 
 export type Data = {
@@ -21,6 +22,7 @@ export interface Simulation {
 	valorFinalLiquido: number;
 	ganhoLiquido: number;
 	graficoValores: GraphValues;
+	dataGraph: BarDatum[]
 }
 
 export interface GraphValues {
