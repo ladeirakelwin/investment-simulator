@@ -1,5 +1,6 @@
-import { BarDatum, ResponsiveBar } from '@nivo/bar';
-import React from 'react';
+import { BarDatum, BarLegendProps, ResponsiveBar } from '@nivo/bar';
+import React, { useEffect, useState } from 'react';
+import useMediaQuery from '../../hooks/useMediaQuery';
 import styles from './Chart.module.scss';
 interface ChartProps {
 	data: BarDatum[];
@@ -7,7 +8,10 @@ interface ChartProps {
 	colors: string[];
 	legendNameBottom: string;
 	legendNameLeft: string;
+	title: string;
 }
+
+type Legends = BarLegendProps[] | undefined
 
 const Chart: React.FC<ChartProps> = ({
 	data,
@@ -15,16 +19,46 @@ const Chart: React.FC<ChartProps> = ({
 	colors,
 	legendNameBottom,
 	legendNameLeft,
+	title,
 }) => {
+	const isLg = useMediaQuery('(min-width: 992px)');
+	const legends : Legends = isLg
+		? [
+				{
+					dataFrom: 'keys',
+					anchor: 'bottom',
+					direction: 'row',
+					justify: false,
+					translateX: 70,
+					translateY: 45,
+					itemsSpacing: 2,
+					itemWidth: 200,
+					itemHeight: 10,
+					itemDirection: 'left-to-right',
+					itemOpacity: 0.85,
+					symbolSize: 20,
+					symbolShape: 'circle',
+					effects: [
+						{
+							on: 'hover',
+							style: {
+								itemOpacity: 1,
+							},
+						},
+					],
+				},
+		  ]
+		: undefined;
 	return (
 		<div className={`${styles['chart-container']}`}>
+			<h6>{title}</h6>
 			<ResponsiveBar
 				data={data}
 				keys={columns}
 				innerPadding={4}
 				valueFormat=" >-.2f"
 				indexBy="mes"
-				margin={{ top: 10, right: 10, bottom: 50, left: 10}}
+				margin={{ top: 10, right: 10, bottom: 50, left: 10 }}
 				padding={0.15}
 				valueScale={{ type: 'linear' }}
 				indexScale={{ type: 'band', round: true }}
@@ -55,31 +89,7 @@ const Chart: React.FC<ChartProps> = ({
 					legendPosition: 'middle',
 					legendOffset: 0,
 				}}
-				legends={[
-					{
-						dataFrom: 'keys',
-						anchor: 'bottom',
-						direction: 'row',
-						justify: false,
-						translateX: 70,
-						translateY: 45,
-						itemsSpacing: 2,
-						itemWidth: 200,
-						itemHeight: 10,
-						itemDirection: 'left-to-right',
-						itemOpacity: 0.85,
-						symbolSize: 20,
-						symbolShape: 'circle',
-						effects: [
-							{
-								on: 'hover',
-								style: {
-									itemOpacity: 1,
-								},
-							},
-						],
-					},
-				]}
+				legends={legends}
 				labelSkipWidth={12}
 				labelSkipHeight={12}
 				labelTextColor={{
