@@ -6,13 +6,7 @@ import styles from '../styles/Home.module.scss';
 import NameChoice from '../components/NameChoice';
 import MyInput from '../components/MyInput';
 import MyButtonGroup from '../components/MyButtonGroup';
-import {
-	FormEvent,
-	ReactNode,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
 import { CardTextKeys, IndexingType, Performance } from '../shared/constants';
 import { Data, Simulation } from '../shared/types';
@@ -40,9 +34,9 @@ const dictAPI = {
 function ReturnCards(obj: object): ReactNode[] {
 	const elements = [];
 	for (const [key, value] of Object.entries(obj)) {
-		const typeValue = key === 'aliquotaIR' ? "percentage" : "currency";
+		const typeValue = key === 'aliquotaIR' ? 'percentage' : 'currency';
 		if (['valorFinalBruto', 'aliquotaIR', 'valorPagoIR', 'valorTotalInvestido'].includes(key)) {
-			elements.push(<Card  typeValue={typeValue} title={key as CardTextKeys} value={value} />);
+			elements.push(<Card typeValue={typeValue} title={key as CardTextKeys} value={value} />);
 		} else if (['valorFinalLiquido', 'ganhoLiquido'].includes(key)) {
 			elements.push(<Card title={key as CardTextKeys} value={value} isGreen />);
 		}
@@ -194,8 +188,8 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 								<h4>Resultado da Simulação</h4>
 								<div className="d-flex flex-column">
 									<Row className=" w-100">
-										{ReturnCards(simulationInfo).map((card) => (
-											<Col xs="12" sm="6" lg="4" className="my-2">
+										{ReturnCards(simulationInfo).map((card, index) => (
+											<Col xs="12" sm="6" lg="4" className="my-2" key={index}>
 												{card}
 											</Col>
 										))}
@@ -206,6 +200,7 @@ const Home: NextPage<IHomeProps> = ({ baseIndicators }) => {
 										colors={['hsl(0, 0%, 0%)', 'hsl(20, 70%, 50%)']}
 										legendNameLeft="Valor (R$)"
 										legendNameBottom="Tempo (meses)"
+										title="Projeção de valores"
 									/>
 								</div>
 							</>
