@@ -28,7 +28,7 @@ const Card: React.FC<CardProps> = ({
 			  }).format(Number(value))
 			: new Intl.NumberFormat('pt-BR', {
 					style: 'percent',
-					minimumFractionDigits: 2,
+					minimumFractionDigits: 0,
 					maximumFractionDigits: 2,
 			  }).format(Number(value));
 	return (
