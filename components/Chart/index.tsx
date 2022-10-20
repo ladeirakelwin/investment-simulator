@@ -1,6 +1,7 @@
-import { BarDatum, BarLegendProps, ResponsiveBar } from '@nivo/bar';
-import React, { useEffect, useState } from 'react';
+import { BarDatum,  ResponsiveBar } from '@nivo/bar';
+import React  from 'react';
 import useMediaQuery from '../../hooks/useMediaQuery';
+import { Legends } from '../../shared/types';
 import styles from './Chart.module.scss';
 interface ChartProps {
 	data: BarDatum[];
@@ -11,7 +12,6 @@ interface ChartProps {
 	title: string;
 }
 
-type Legends = BarLegendProps[] | undefined
 
 const Chart: React.FC<ChartProps> = ({
 	data,
@@ -49,6 +49,7 @@ const Chart: React.FC<ChartProps> = ({
 				},
 		  ]
 		: undefined;
+
 	return (
 		<div className={`${styles['chart-container']}`}>
 			<h6 className='text-center text-lg-start'>{title}</h6>

@@ -1,4 +1,4 @@
-import { BarDatum } from '@nivo/bar';
+import { BarDatum, BarLegendProps } from '@nivo/bar';
 import { IndexingType, Performance } from './constants';
 
 export type Data = {
@@ -29,3 +29,14 @@ export interface GraphValues {
 	comAporte: { [key: string]: number };
 	semAporte: { [key: string]: number };
 }
+
+export interface IIPCAandCDI {
+	nome: string;
+	valor: number;
+}
+
+export type InfoIndicator = {
+	[key: string]: string;
+};
+
+export type Legends = BarLegendProps[] | undefined

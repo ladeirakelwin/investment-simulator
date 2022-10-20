@@ -2,7 +2,7 @@ import React, { SyntheticEvent } from 'react';
 import { Data } from '../../shared/types';
 import styles from './MyButtonGroup.module.scss';
 
-interface IMyButtonGroup {
+interface MyButtonGroupProps {
 	type: string;
 	names: string[];
 	setALot: (e: Partial<Data>) => void;
@@ -27,7 +27,7 @@ const setActive = ({ el, setALot, type }: SetActive) => {
 	}
 };
 
-const MyButtonGroup: React.FC<IMyButtonGroup> = ({ names, setALot, type }) => {
+const MyButtonGroup: React.FC<MyButtonGroupProps> = ({ names, setALot, type }) => {
 	const first = 0;
 	const last = names.length - 1;
 

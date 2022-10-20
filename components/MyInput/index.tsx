@@ -4,7 +4,7 @@ import { NumericFormat } from 'react-number-format';
 import { Data } from '../../shared/types';
 
 // import { Container } from './styles';
-interface IMyInput {
+interface MyInputProps {
 	label: string;
 	classLabel?: string;
 	placeholder?: string;
@@ -15,7 +15,7 @@ interface IMyInput {
 	suffix?: string;
 }
 
-const MyInput: React.FC<IMyInput> = ({
+const MyInput: React.FC<MyInputProps> = ({
 	label,
 	classLabel,
 	placeholder,
@@ -28,7 +28,7 @@ const MyInput: React.FC<IMyInput> = ({
 	return (
 		<Form.Group className="mb-3">
 			<Form.Label className={classLabel}>{label}</Form.Label>
-			<NumericFormat prefix={prefix} suffix={suffix} decimalScale={2} decimalSeparator="," onChange={(e) => onChange({[name]: e.target.value})} value={value} customInput={Form.Control} className="rounded-0 bg-transparent border border-dark border-top-0 border-end-0 border-start-0" />
+			<NumericFormat prefix={prefix} suffix={suffix} decimalScale={2} decimalSeparator="," onChange={(e) => onChange({[name]: e.target.value})} value={value} customInput={Form.Control} className="rounded-0 bg-transparent border border-dark border-top-0 border-end-0 border-start-0" placeholder={placeholder} />
 		</Form.Group>
 	);
 };

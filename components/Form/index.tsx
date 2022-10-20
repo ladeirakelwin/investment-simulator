@@ -10,7 +10,6 @@ import MyButtonGroup from '../MyButtonGroup';
 import MyInput from '../MyInput';
 import NameChoice from '../NameChoice';
 
-// import { Container } from './styles';
 
 const MyForm: React.FC = () => {
 	const data = useSimulatorStore((s) => s.data);

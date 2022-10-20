@@ -1,25 +1,13 @@
 import type { NextPage } from 'next';
-import { Col, Form, Row, Stack } from 'react-bootstrap';
+import { Col, Row, } from 'react-bootstrap';
 import styles from '../styles/Home.module.scss';
-import {  ReactNode, useEffect, useMemo, useState } from 'react';
+import {  ReactNode, useEffect,} from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
-import { CardTextKeys, IndexingType, Performance } from '../shared/constants';
-import { Data, Simulation } from '../shared/types';
+import { CardTextKeys, } from '../shared/constants';
+import { IIPCAandCDI, InfoIndicator } from '../shared/types';
 import Card from '../components/Card';
 import Chart from '../components/Chart';
-import { BarDatum } from '@nivo/bar';
 import MyForm from '../components/Form';
-
-interface IIPCAandCDI {
-	nome: string;
-	valor: number;
-}
-
-type InfoIndicator = {
-	[key: string]: string;
-};
-
-
 
 function ReturnCards(obj: object): ReactNode[] {
 	const elements = [];
@@ -94,7 +82,6 @@ const Home: NextPage<HomeProps> = ({ baseIndicators }) => {
 export default Home;
 
 export async function getServerSideProps() {
-	// Fetch data from external API
 
 	const response = await fetch('http://localhost:3000/indicadores');
 	const indicators: IIPCAandCDI[] = await response.json();
