@@ -1,13 +1,15 @@
 import type { NextPage } from 'next';
-import { Col, Row, } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import styles from '../styles/Home.module.scss';
-import {  ReactNode, useEffect,} from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useSimulatorStore } from '../contexts/Simulator';
-import { CardTextKeys, } from '../shared/constants';
-import { IIPCAandCDI, InfoIndicator } from '../shared/types';
+import { CardTextKeys } from '../shared/constants';
+import { InfoIndicator } from '../shared/types';
 import Card from '../components/Card';
 import Chart from '../components/Chart';
 import MyForm from '../components/Form';
+import { useQuery } from 'react-query';
+import fetchIndicators from '../utils/FetchIndicators';
 
 function ReturnCards(obj: object): ReactNode[] {
 	const elements = [];
@@ -26,13 +28,17 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ baseIndicators }) => {
+	const { data } = useQuery<InfoIndicator>('indicators', fetchIndicators, {
+		initialData: baseIndicators,
+	});
 	const simulationInfo = useSimulatorStore((s) => s.simulationInfo);
 	const setALot = useSimulatorStore((s) => s.setALot);
 
 	useEffect(() => {
-		setALot(baseIndicators);
+		if (data) {
+			setALot(data);
+		}
 	}, []);
-
 
 	return (
 		<div className={styles.container}>
@@ -40,13 +46,15 @@ const Home: NextPage<HomeProps> = ({ baseIndicators }) => {
 				<h1 className="text-center">Simulador de investimentos</h1>
 				<div className={styles.core}>
 					<div>
-						<h4 className='text-center text-lg-start'>Simulador</h4>
+						<h4 className="text-center text-lg-start">Simulador</h4>
 						<MyForm />
 					</div>
 					<div className="p-4 ">
 						{!!Object.values(simulationInfo).length && (
 							<>
-								<h4 className='text-center text-lg-start mt-4 mt-lg-0'>Resultado da Simulação</h4>
+								<h4 className="text-center text-lg-start mt-4 mt-lg-0">
+									Resultado da Simulação
+								</h4>
 								<div className="d-flex flex-column">
 									<Row className="w-100  mx-auto">
 										{ReturnCards(simulationInfo).map((card, index) => (
@@ -82,13 +90,6 @@ const Home: NextPage<HomeProps> = ({ baseIndicators }) => {
 export default Home;
 
 export async function getServerSideProps() {
-
-	const response = await fetch('http://localhost:3000/indicadores');
-	const indicators: IIPCAandCDI[] = await response.json();
-	const baseIndicators: InfoIndicator = indicators.reduce((acc, indicator) => {
-		acc[indicator.nome] = `${String(indicator.valor).replace('.', ',')}%`;
-		return acc;
-	}, {} as InfoIndicator);
-
+	const baseIndicators = await fetchIndicators();
 	return { props: { baseIndicators } };
 }
