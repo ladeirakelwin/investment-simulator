@@ -19,3 +19,13 @@ export const CardText = {
 };
 
 export type CardTextKeys = 'valorFinalBruto' | 'aliquotaIR' | 'valorPagoIR' | 'valorTotalInvestido' | 'valorFinalLiquido' | 'ganhoLiquido';
+
+
+
+export const apiParameters = {
+	[IndexingType.PRE]: 'pre',
+	[IndexingType.POS]: 'pos',
+	[IndexingType.FIXADO]: 'ipca',
+	[Performance.BRUTO]: 'bruto',
+	[Performance.LIQUIDO]: 'liquido',
+};

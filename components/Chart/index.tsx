@@ -51,7 +51,7 @@ const Chart: React.FC<ChartProps> = ({
 		: undefined;
 	return (
 		<div className={`${styles['chart-container']}`}>
-			<h6>{title}</h6>
+			<h6 className='text-center text-lg-start'>{title}</h6>
 			<ResponsiveBar
 				data={data}
 				keys={columns}

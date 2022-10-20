@@ -23,14 +23,8 @@ const Card: React.FC<CardProps> = ({
 			? new Intl.NumberFormat('pt-BR', {
 					style: 'currency',
 					currency: 'BRL',
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
 			  }).format(Number(value))
-			: new Intl.NumberFormat('pt-BR', {
-					style: 'percent',
-					minimumFractionDigits: 0,
-					maximumFractionDigits: 2,
-			  }).format(Number(value));
+			: `${value} %`;
 	return (
 		<div
 			className={`shadow-sm bg-light d-flex flex-column
