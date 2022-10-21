@@ -1,9 +1,11 @@
 import { BarDatum } from '@nivo/bar';
 import React, { FormEvent, useMemo, useState } from 'react';
 import { Form, Stack } from 'react-bootstrap';
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters, useQuery, UseQueryResult } from 'react-query';
 import { useSimulatorStore } from '../../contexts/Simulator';
 import { apiParameters, IndexingType, Performance } from '../../shared/constants';
 import { Data, Simulation } from '../../shared/types';
+import fetchSimulations from '../../utils/FetchSimulations';
 import CleanButton from '../CleanButton';
 import MainButton from '../MainButton';
 import MyButtonGroup from '../MyButtonGroup';
@@ -11,8 +13,10 @@ import MyInput from '../MyInput';
 import NameChoice from '../NameChoice';
 
 
+type Refetch = <TPageData>(options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined) => Promise<QueryObserverResult<Simulation[], unknown>>;
+
 const MyForm: React.FC = () => {
-	const data = useSimulatorStore((s) => s.data);
+	const simulatorData = useSimulatorStore((s) => s.data);
 	const initial = useSimulatorStore((s) => s.data?.initial);
 	const due = useSimulatorStore((s) => s.data?.due);
 	const ipca = useSimulatorStore((s) => s.data?.ipca);
@@ -21,41 +25,48 @@ const MyForm: React.FC = () => {
 	const cdi = useSimulatorStore((s) => s.data?.cdi);
 	const setALot = useSimulatorStore((s) => s.setALot);
 	const cleanState = useSimulatorStore((s) => s.cleanState);
-    const setSimulationInfo = useSimulatorStore((s) => s.setSimulationInfo)
-	const isComplete = useMemo(() => Object.values(data).every((item) => item), [data]);
+	const setSimulationInfo = useSimulatorStore((s) => s.setSimulationInfo);
+	const isComplete = useMemo(
+		() => Object.values(simulatorData).every((item) => item),
+		[simulatorData]
+	);
+	const { data } = useQuery<Simulation[]>('simulations', fetchSimulations);
 
-	async function onSubmit(event: FormEvent<HTMLFormElement>, data: Data) {
+	async function onSubmit(
+		event: FormEvent<HTMLFormElement>,
+		simulatorData: Data,
+		data: Simulation[] | undefined
+	) {
 		event.preventDefault();
 		const typeInfo = {
-			tipoIndexacao: apiParameters[data.indexing],
-			tipoRendimento: apiParameters[data.performance],
+			tipoIndexacao: apiParameters[simulatorData.indexing],
+			tipoRendimento: apiParameters[simulatorData.performance],
 		};
+		
+		if (data) {
+			const currentSimulation = data.find(
+				(simulation) =>
+					simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
+					simulation.tipoRendimento === typeInfo.tipoRendimento
+			);
 
-		const response = await fetch('api/simulacoes');
-		const { simulations }: { simulations: Simulation[] } = await response.json();
+			if (currentSimulation) {
+				const dataGraph: BarDatum[] = [];
 
-		const currentSimulation = simulations.find(
-			(simulation) =>
-				simulation.tipoIndexacao === typeInfo.tipoIndexacao &&
-				simulation.tipoRendimento === typeInfo.tipoRendimento
-		);
+				for (let i in currentSimulation.graficoValores.semAporte) {
+					dataGraph.push({
+						mes: i,
+						'Sem Aporte': currentSimulation.graficoValores.semAporte[i],
+						'Com Aporte': currentSimulation.graficoValores.comAporte[i],
+					});
+				}
 
-		if (currentSimulation) {
-			const dataGraph: BarDatum[] = [];
-
-			for (let i in currentSimulation.graficoValores.semAporte) {
-				dataGraph.push({
-					mes: i,
-					'Sem Aporte': currentSimulation.graficoValores.semAporte[i],
-					'Com Aporte': currentSimulation.graficoValores.comAporte[i],
-				});
+				setSimulationInfo({ ...currentSimulation, dataGraph });
 			}
-
-			setSimulationInfo({ ...currentSimulation, dataGraph });
 		}
 	}
 	return (
-		<Form onSubmit={async (e) => await onSubmit(e, data)}>
+		<Form onSubmit={async (e) => await onSubmit(e, simulatorData, data)}>
 			<Stack
 				direction="horizontal"
 				className="d-flex justify-content-center justify-content-sm-evenly justify-content-xl-between mb-4 flex-wrap flex-lg-nowrap"
